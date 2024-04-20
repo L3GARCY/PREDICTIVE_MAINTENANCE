@@ -1,23 +1,30 @@
 import datetime as dt
+import datetime
+from datetime import datetime
 import pandas as pd
 from pymongo import MongoClient
 
 
 client = MongoClient("mongodb://localhost:27017/")  
-db = client.Timed
+db = client.MachineDB
 
 
 
 def get_latest_telemetry_record():
-
-    
-    telemetry_record = db.telemtry.find_one({}, sort=[('datetime', -1)])
+    collection = db["sTelemetry"]
+    import datetime
+    from datetime import datetime
+    now = datetime.now()
+    now = now.replace(microsecond=0)
+    datetime = now
+    query = {"timestamp": datetime}
+    telemetry_record = collection.find_one(query)
     voltage = telemetry_record["volt"]
     rpm = telemetry_record["rotate"]
     pressure = telemetry_record["pressure"]
     vibration = telemetry_record["vibration"]
     machine_id = telemetry_record["machineID"]
-    datetime = telemetry_record["datetime"]
+    datetime = telemetry_record["timestamp"]
     return voltage, rpm, pressure, vibration, machine_id, datetime
 
 
@@ -51,16 +58,13 @@ def error(machine_id, datetime, collection_name="error"):
 
 def sum_up_errors():
     telemetry = get_latest_telemetry_record()
-
     hourly_errors = error(telemetry[4], telemetry[5])
     error_counts = {'error1': 0, 'error2': 0, 'error3': 0, 'error4': 0, 'error5': 0}
-    
     
     for err in hourly_errors:
         if 'errorID' in err:
             error_counts[err['errorID']] += 1
     
-   
     error_counts_tuple = tuple(error_counts.values())
     return error_counts_tuple  
 
@@ -100,6 +104,8 @@ def final():
     combined_tuple = telemetry[:4] + total_errors + last_repair + model_and_age
     df = pd.DataFrame([combined_tuple], columns=columns)
     df['model'] = df['model'].astype('category')    
+    df['machineID'] = telemetry[4]
+    df['datetime'] = telemetry[5]
     print("dataframe ready for prediction")
     return df
 

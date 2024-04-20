@@ -1,10 +1,10 @@
 import pickle
 import pymongo
+import time
 from pipeline import final
 
-
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
-db = client["Timed"]  
+db = client["MachineDB"]  
 collection = db["result"]  
 
 with open("rf_classifier.pkl", "rb") as f:
@@ -12,9 +12,14 @@ with open("rf_classifier.pkl", "rb") as f:
 
 def predict():
     df = final()
-    prediction = classifier.predict(df)
+    finalFrame = df.drop(['machineID','datetime'], axis=1)
+    prediction = classifier.predict(finalFrame)
     df["failure"] = prediction
     collection.insert_many(df.to_dict("records"))
 
+#def main():
+#    while True:
+#       predict()
+#        time.sleep(2)
 predict()
 
