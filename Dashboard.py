@@ -3,6 +3,8 @@ import streamlit as st
 from datetime import datetime
 import time
 from prediction import predict
+from pages.Logs import latest_logs
+
 
 client = pymongo.MongoClient("mongodb://localhost:27017/")  
 db = client["MachineDB"] 

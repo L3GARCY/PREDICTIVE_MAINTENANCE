@@ -7,7 +7,7 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client["MachineDB"]  
 collection = db["result"]  
 
-with open("rf_classifier.pkl", "rb") as f:
+with open("rf_classifier_version_2.pkl", "rb") as f:
     classifier = pickle.load(f)
 
 def predict():
